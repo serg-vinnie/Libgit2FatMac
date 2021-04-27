@@ -1,5 +1,9 @@
 #!/bin/bash
 
+CPU_CORES_COUNT=$(sysctl -n hw.ncpu)
+
+echo "cores: "$CPU_CORES_COUNT
+
 make_openssl() {
 	local root='/tmp/openssl-'$1
 	local bin="${root}/bin/openssl"
@@ -9,7 +13,7 @@ make_openssl() {
 		echo "going to build openssl $1"
 		cd openssl
 		make clean
-		./Configure $1 --prefix=$root
+		./Configure 'darwin64-'$1 --prefix=$root
 		make -j 8
 		make install_sw
 		cd ..
@@ -17,27 +21,28 @@ make_openssl() {
 }
 
 make_libssh() {
+	export OPENSSL_ROOT_DIR="/tmp/openssl-"$1
+	env | grep SSL
+
 	local ARCH=$1
 	local root='/tmp/libssh-'$1
+	#rm -rf $root
 	local bin="${root}/lib/libssh2.a"
 	if [[ -f $bin ]]; then
 		echo "skipping openssl $1"
 	else		
-		#export CPPFLAGS="-arch $ARCH -pipe -no-cpp-precomp"
 		cd libssh2
 		rm -rf ./build
 		mkdir build
 		cd build
-		cmake .. -DCMAKE_INSTALL_PREFIX=$root 
-		cmake --build . --target install
+		cmake .. -DCMAKE_INSTALL_PREFIX=$root -DCMAKE_OSX_ARCHITECTURES=$ARCH
+		cmake --build . --target install -j $CPU_CORES_COUNT
+		cd ..
 	fi
 }
 
-make_openssl "darwin64-arm64"
-make_openssl "darwin64-x86_64"
-
-export OPENSSL_ROOT_DIR="/tmp/openssl-darwin64-x86_64"
-env | grep SSL
+make_openssl "arm64"
+make_openssl "x86_64"
 
 make_libssh "arm64"
-#make_libssh "x86_64"
+make_libssh "x86_64"
