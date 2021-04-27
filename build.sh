@@ -29,8 +29,9 @@ make_libssh() {
 	#rm -rf $root
 	local bin="${root}/lib/libssh2.a"
 	if [[ -f $bin ]]; then
-		echo "skipping openssl $1"
+		echo "skipping libssh2 $1"
 	else		
+		echo "going to build libssh2 $1"
 		cd libssh2
 		rm -rf ./build
 		mkdir build
