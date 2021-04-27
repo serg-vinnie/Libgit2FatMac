@@ -14,7 +14,7 @@ make_openssl() {
 		cd openssl
 		make clean
 		./Configure 'darwin64-'$1 --prefix=$root
-		make -j 8
+		make -j $CPU_CORES_COUNT
 		make install_sw
 		cd ..
 	fi
