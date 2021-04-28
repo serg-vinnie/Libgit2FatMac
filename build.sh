@@ -23,9 +23,8 @@ make_openssl() {
 make_libssh() {
 	local ARCH=$1
 	
-
 	local ARCH=$ARCH
-	local root='/tmp/libssh-'$ARCH
+	local root='/tmp/libssh-darwin64-'$ARCH
 	#rm -rf $root
 	local bin="${root}/lib/libssh2.a"
 	if [[ -f $bin ]]; then
@@ -33,7 +32,7 @@ make_libssh() {
 	else		
 		echo "going to build libssh2 $ARCH"
 		
-		export OPENSSL_ROOT_DIR="/tmp/openssl-"$ARCH
+		export OPENSSL_ROOT_DIR=$root
 		env | grep SSL
 		
 		cd libssh2
@@ -50,16 +49,12 @@ make_libgit() {
 	local ARCH=$1
 	
 	local libssl_root="/tmp/openssl-"$ARCH
-	local libssh_root='/tmp/libssh-'$ARCH
-	export CMAKE_INCLUDE_PATH="${libssh_root}/include;${OPENSSL_ROOT_DIR}/include"
-	export CMAKE_LIBRARY_PATH="${libssh_root}/lib;${OPENSSL_ROOT_DIR}/lib"
-	export OPENSSL_ROOT_DIR="/tmp/openssl-"$ARCH
-	
-	export PKG_CONFIG_PATH="${libssl_root}/lib/pkgconfig/libssl.pc"
+	export OPENSSL_ROOT_DIR=$libssl_root
+	export PKG_CONFIG_PATH="${libssl_root}/lib/pkgconfig"
 	env | grep PKG_CONFIG_PATH
 	
 	local root='/tmp/libgit-'$ARCH
-	rm -rf $root
+	#rm -rf $root
 	local bin="${root}/lib/libgit2.a"
 	
 	if [[ -f $bin ]]; then
