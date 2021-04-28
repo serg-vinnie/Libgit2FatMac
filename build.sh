@@ -83,3 +83,28 @@ make_libssh "x86_64"
 make_libgit "x86_64"
 make_libgit "arm64"
 
+make_fat() {
+	local x86=$COMMON_ROOT/$1"-x86_64"/lib/$2
+	local arm=$COMMON_ROOT"/"$1"-arm64"/lib/$2
+	local fat=$COMMON_ROOT"/"$2
+	#echo $x86
+	#echo $arm
+	#echo $fat
+	
+	if [[ -f $x86 ]]; then
+		if [[ -f $arm ]]; then
+			echo "going to create fat binary: "$fat
+			lipo -create -output $fat $x86 $arm
+			
+		else
+			echo "can't find "$arm >&2
+		fi
+	else
+		echo "can't find "$x86 >&2
+	fi
+}
+
+make_fat "openssl" "libssl.a"
+make_fat "openssl" "libcrypto.a"
+make_fat "libgit" "libgit2.a"
+make_fat "libssh" "libssh2.a"
