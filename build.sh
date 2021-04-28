@@ -1,11 +1,14 @@
 #!/bin/bash
 
 CPU_CORES_COUNT=$(sysctl -n hw.ncpu)
+COMMON_ROOT="/tmp/git"
+OPENSSL_ROOT=$COMMON_ROOT"/openssl-"
 
 echo "cores: "$CPU_CORES_COUNT
 
 make_openssl() {
-	local root='/tmp/openssl-'$1
+	local ARCH=$1
+	local root=$OPENSSL_ROOT$ARCH
 	local bin="${root}/bin/openssl"
 	if [[ -f $bin ]]; then
 		echo "skipping openssl $1"
@@ -22,9 +25,7 @@ make_openssl() {
 
 make_libssh() {
 	local ARCH=$1
-	
-	local ARCH=$ARCH
-	local root='/tmp/libssh-darwin64-'$ARCH
+	local root=$COMMON_ROOT'/libssh-darwin64-'$ARCH
 	#rm -rf $root
 	local bin="${root}/lib/libssh2.a"
 	if [[ -f $bin ]]; then
@@ -32,28 +33,28 @@ make_libssh() {
 	else		
 		echo "going to build libssh2 $ARCH"
 		
-		export OPENSSL_ROOT_DIR=$root
+		export OPENSSL_ROOT_DIR=$OPENSSL_ROOT$ARCH
 		env | grep SSL
 		
 		cd libssh2
-		rm -rf ./build
+		[[ -d ./build ]] && rm -r ./build
 		mkdir build
 		cd build
 		cmake .. -DCMAKE_INSTALL_PREFIX=$root -DCMAKE_OSX_ARCHITECTURES=$ARCH
 		cmake --build . --target install -j $CPU_CORES_COUNT
-		cd ..
+		cd ../..
 	fi
 }
 
 make_libgit() {
 	local ARCH=$1
 	
-	local libssl_root="/tmp/openssl-"$ARCH
+	local libssl_root=$OPENSSL_ROOT$ARCH
 	export OPENSSL_ROOT_DIR=$libssl_root
 	export PKG_CONFIG_PATH="${libssl_root}/lib/pkgconfig"
 	env | grep PKG_CONFIG_PATH
 	
-	local root='/tmp/libgit-'$ARCH
+	local root=$COMMON_ROOT'/libgit-'$ARCH
 	#rm -rf $root
 	local bin="${root}/lib/libgit2.a"
 	
@@ -62,20 +63,20 @@ make_libgit() {
 	else		
 		echo "going to build libgit2 $ARCH"
 		cd libgit2
-		rm -rf ./build
+		[[ -d ./build ]] && rm -r ./build
 		mkdir build
 		cd build
 		cmake .. -DCMAKE_INSTALL_PREFIX=$root -DCMAKE_OSX_ARCHITECTURES=$ARCH
 		cmake --build . --target install -j $CPU_CORES_COUNT
-		cd ..
+		cd ../..
 	fi
 }
 
 make_openssl "arm64"
 make_openssl "x86_64"
 
-make_libssh "arm64"
-make_libssh "x86_64"
+#make_libssh "arm64"
+#make_libssh "x86_64"
 
-make_libgit "arm64"
-make_libgit "x86_64"
+#make_libgit "arm64"
+#make_libgit "x86_64"
