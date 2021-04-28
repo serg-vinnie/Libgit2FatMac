@@ -40,7 +40,7 @@ make_libssh() {
 		[[ -d ./build ]] && rm -r ./build
 		mkdir build
 		cd build
-		cmake .. -DCMAKE_INSTALL_PREFIX=$root -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_CXX_FLAGS="-g -O0"
+		cmake .. -DCMAKE_INSTALL_PREFIX=$root -DCMAKE_OSX_ARCHITECTURES=$ARCH
 		cmake --build . --target install -j $CPU_CORES_COUNT
 		cd ../..
 	fi
@@ -52,7 +52,7 @@ make_libgit() {
 	local libssl_root=$OPENSSL_ROOT$ARCH
 	export OPENSSL_ROOT_DIR=$libssl_root
 	export PKG_CONFIG_PATH="${libssl_root}/lib/pkgconfig"
-	env | grep PKG_CONFIG_PATH
+	export CMAKE_PREFIX_PATH=$COMMON_ROOT'/libssh-'$ARCH
 	
 	local root=$COMMON_ROOT'/libgit-'$ARCH
 	#rm -rf $root
@@ -66,8 +66,10 @@ make_libgit() {
 		[[ -d ./build ]] && rm -r ./build
 		mkdir build
 		cd build
-		cmake .. -DCMAKE_INSTALL_PREFIX=$root -DCMAKE_OSX_ARCHITECTURES=$ARCH
+		cmake .. -DCMAKE_INSTALL_PREFIX=$root \
+			-DCMAKE_OSX_ARCHITECTURES=$ARCH
 		cmake --build . --target install -j $CPU_CORES_COUNT
+		#make -j $CPU_CORES_COUNT
 		cd ../..
 	fi
 }
@@ -78,5 +80,6 @@ make_openssl "x86_64"
 make_libssh "arm64"
 make_libssh "x86_64"
 
+make_libgit "x86_64"
 make_libgit "arm64"
-#make_libgit "x86_64"
+
