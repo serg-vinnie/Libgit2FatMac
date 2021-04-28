@@ -1,3 +1,6 @@
 [submodule "libgit2"]
 	path = libgit2
 	url = git@github.com:serg-vinnie/libgit2.git
+[submodule "openssl"]
+	path = openssl
+	url = git@github.com:openssl/openssl.git
