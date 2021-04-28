@@ -25,7 +25,7 @@ make_openssl() {
 
 make_libssh() {
 	local ARCH=$1
-	local root=$COMMON_ROOT'/libssh-darwin64-'$ARCH
+	local root=$COMMON_ROOT'/libssh-'$ARCH
 	#rm -rf $root
 	local bin="${root}/lib/libssh2.a"
 	if [[ -f $bin ]]; then
@@ -40,7 +40,7 @@ make_libssh() {
 		[[ -d ./build ]] && rm -r ./build
 		mkdir build
 		cd build
-		cmake .. -DCMAKE_INSTALL_PREFIX=$root -DCMAKE_OSX_ARCHITECTURES=$ARCH
+		cmake .. -DCMAKE_INSTALL_PREFIX=$root -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_CXX_FLAGS="-g -O0"
 		cmake --build . --target install -j $CPU_CORES_COUNT
 		cd ../..
 	fi
@@ -75,8 +75,8 @@ make_libgit() {
 make_openssl "arm64"
 make_openssl "x86_64"
 
-#make_libssh "arm64"
-#make_libssh "x86_64"
+make_libssh "arm64"
+make_libssh "x86_64"
 
-#make_libgit "arm64"
+make_libgit "arm64"
 #make_libgit "x86_64"
