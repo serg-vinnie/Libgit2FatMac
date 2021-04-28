@@ -49,14 +49,19 @@ make_libssh() {
 make_libgit() {
 	local ARCH=$1
 	
-	local OPENSSL_ROOT_DIR="/tmp/openssl-"$ARCH
+	local libssl_root="/tmp/openssl-"$ARCH
 	local libssh_root='/tmp/libssh-'$ARCH
 	export CMAKE_INCLUDE_PATH="${libssh_root}/include;${OPENSSL_ROOT_DIR}/include"
 	export CMAKE_LIBRARY_PATH="${libssh_root}/lib;${OPENSSL_ROOT_DIR}/lib"
+	export OPENSSL_ROOT_DIR="/tmp/openssl-"$ARCH
+	
+	export PKG_CONFIG_PATH="${libssl_root}/lib/pkgconfig/libssl.pc"
+	env | grep PKG_CONFIG_PATH
 	
 	local root='/tmp/libgit-'$ARCH
-	#rm -rf $root
+	rm -rf $root
 	local bin="${root}/lib/libgit2.a"
+	
 	if [[ -f $bin ]]; then
 		echo "skipping libgit2 $ARCH"
 	else		
