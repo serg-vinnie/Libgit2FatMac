@@ -4,3 +4,6 @@
 [submodule "openssl"]
 	path = openssl
 	url = git@github.com:openssl/openssl.git
+[submodule "libssh2"]
+	path = libssh2
+	url = git@github.com:libssh2/libssh2.git
